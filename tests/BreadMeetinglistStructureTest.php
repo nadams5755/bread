@@ -19,7 +19,7 @@ final class BreadMeetinglistStructureTest extends TestCase
     private function getFormats($formats)
     {
         $json = file_get_contents('tests/formats/' . $formats . ".json");
-        return json_decode($json, true);
+        return json_decode($json, true)['formats'];
     }
     private function getFormatMgr($usedFormat, $lang, $bread)
     {

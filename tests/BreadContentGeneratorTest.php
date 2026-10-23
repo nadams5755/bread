@@ -4,6 +4,9 @@ use Mpdf\Mpdf;
 use PHPUnit\Framework\TestCase;
 
 use function PHPUnit\Framework\assertEquals;
+use function PHPUnit\Framework\assertStringContainsString;
+use function PHPUnit\Framework\assertStringEndsWith;
+use function PHPUnit\Framework\assertStringNotContainsString;
 
 final class BreadContentGeneratorTest extends TestCase
 {
@@ -89,7 +92,37 @@ final class BreadContentGeneratorTest extends TestCase
             ]
         );
     }
-    public function doTest($config, $changes, $serviceBodiesJson, $expected): void
+    private function replaceFormatShortcodes(string $data): string
+    {
+        $generator = $this->makeGenerator('berlin-booklet', ['custom_section_font_size' => 7.7, 'custom_section_line_height' => 1], 'berlin-service-bodies');
+        (new ReflectionMethod($generator, 'replace_format_shortcodes'))->invokeArgs($generator, [&$data, 'custom_section']);
+        return $data;
+    }
+    public function testFormatShortcodeAtStart()
+    {
+        $data = $this->replaceFormatShortcodes('[format_codes_used_basic]<p>after</p>');
+        assertStringNotContainsString('[format_codes_used_basic]', $data);
+        assertEquals(1, substr_count($data, '<table'));
+        assertStringEndsWith('<p>after</p>', $data);
+    }
+    public function testFormatShortcodeRepeated()
+    {
+        $data = $this->replaceFormatShortcodes('<p>[format_codes_used_basic]</p><p>[format_codes_used_basic]</p>');
+        assertStringNotContainsString('[format_codes_used_basic]', $data);
+        assertEquals(2, substr_count($data, '<table'));
+    }
+    public function testFormatShortcodeFontSize()
+    {
+        $data = $this->replaceFormatShortcodes('<p>[format_codes_used_basic]</p><p>[format_codes_used_detailed]</p>');
+        assertStringContainsString('font-size:7.7pt;', $data);
+        assertStringNotContainsString('ptpt', $data);
+    }
+    public function testFormatShortcodeLarge()
+    {
+        $data = $this->replaceFormatShortcodes('<p>[format_codes_used_basic_large]</p>');
+        assertEquals(50, substr_count($data, '<tr>'));
+    }
+    private function makeGenerator($config, $changes, $serviceBodiesJson): Bread_ContentGenerator
     {
         $options = $this->getConfiguration($config);
         foreach ($changes as $key => $value) {
@@ -101,7 +134,11 @@ final class BreadContentGeneratorTest extends TestCase
         $formats = $this->getFormats('berlin-formats-de');
         $formatMgr = new Bread_FormatsManager($formats, 'de', $bread->bmlt());
 
-        $generator = new Bread_ContentGenerator($this->createMock(Mpdf::class), $bread, [], $formatMgr);
+        return new Bread_ContentGenerator($this->createMock(Mpdf::class), $bread, [], $formatMgr);
+    }
+    public function doTest($config, $changes, $serviceBodiesJson, $expected): void
+    {
+        $generator = $this->makeGenerator($config, $changes, $serviceBodiesJson);
         $shortcodes = (new ReflectionProperty($generator, 'shortcodes'))->getValue($generator);
         foreach ($expected as $shortcode => $value) {
             assertEquals($value, $shortcodes[$shortcode], $shortcode);

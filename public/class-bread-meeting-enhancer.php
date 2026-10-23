@@ -61,7 +61,7 @@ class Bread_Meeting_Enhancer
                 $addtime = '+ ' . $minutes . ' minutes';
                 $temp_end_time = strtotime($meeting_value['start_time'] . ' ' . $addtime);
                 $temp_end_time_2 = gmdate("g:i", strtotime($meeting_value['start_time'] . ' ' . $addtime));
-                if ($temp_end_time == '12:00PM') {
+                if (gmdate("g:iA", $temp_end_time) == '12:00PM') {
                     array_push($time_parts, 'NOON');
                 } elseif (in_array($temp_end_time_2, $time_array)) {
                     array_push($time_parts, gmdate("g" . $space . "A", $temp_end_time));

@@ -199,7 +199,7 @@ class Bread_FormatsManager
      */
     public function write_detailed_formats(string $lang, bool $isAll, string $lineHeight, string $fontSize): string
     {
-        $formats = $isAll ? $this->allFormats[$lang] : $this->getFormatsUsed($lang);
+        $formats = $isAll ? $this->getAllFormats($lang) : $this->getFormatsUsed($lang);
         if (empty($formats)) {
             return '';
         }
@@ -231,8 +231,8 @@ class Bread_FormatsManager
             $data .= '<tr>';
             $data .= "<td style='font-size:" . $fontSize . "pt;line-height:" . $lineHeight . ";padding-left:4px;border:1px solid #555;border-right:0;width:12%;vertical-align:top;'>" . $formats[$count]['key_string'] . "</td>";
             $data .= "<td style='font-size:" . $fontSize . "pt;line-height:" . $lineHeight . ";border: 1px solid #555;border-left:0;width:38%;vertical-align:top;'>" . $formats[$count]['name_string'] . "</td>";
-            $count++;
             if ($isTwoPerRow) {
+                $count++;
                 if ($count >= count($formats)) {
                     $data .= "<td style='font-size:" . $fontSize . "pt;line-height:" . $lineHeight . ";padding-left:4px;border: 1px solid #555;border-right:0;width:12%;vertical-align:top;'></td>";
                     $data .= "<td style='font-size:" . $fontSize . "pt;line-height:" . $lineHeight . ";border: 1px solid #555;border-left:0;width:38%;vertical-align:top;'></td>";
