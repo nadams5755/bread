@@ -3,6 +3,7 @@ class Bread
 {
     private array $options;
     private Bread_Bmlt $bmlt1;
+    private array $translate = [];
     function __construct($options)
     {
         if (! class_exists('WP_Filesystem_Direct')) {
@@ -37,6 +38,10 @@ class Bread
     public function getTranslateTable()
     {
         return $this->translate;
+    }
+    public static function arraySafeGet(array $arr, string $key = "0"): string
+    {
+        return $arr[$key] ?? '';
     }
     public function getday($day, $abbreviate = false, $language = 'en')
     {

@@ -571,17 +571,16 @@ class Bread_ContentGenerator
     }
     private function shortcode_formats($shortcode, $detailed, $lang, $isAll, $page, &$str, $large = false)
     {
-        $pos = strpos($str, $shortcode);
-        if ($pos == false) {
+        if (strpos($str, $shortcode) === false) {
             return;
         }
         $value = '';
         if ($detailed) {
-            $value = $this->formatsManager->write_detailed_formats($lang, $isAll, $this->options[$page . '_line_height'], $this->options[$page . '_font_size'] . "pt");
+            $value = $this->formatsManager->write_detailed_formats($lang, $isAll, $this->options[$page . '_line_height'], $this->options[$page . '_font_size']);
         } else {
-            $value = $this->formatsManager->write_formats($lang, $isAll, $this->options[$page . '_line_height'], $this->options[$page . '_font_size'] . "pt", !$large);
+            $value = $this->formatsManager->write_formats($lang, $isAll, $this->options[$page . '_line_height'], $this->options[$page . '_font_size'], !$large);
         }
-        $str = substr($str, 0, $pos) . $value . substr($str, $pos + strlen($shortcode));
+        $str = str_replace($shortcode, $value, $str);
     }
     private function get_field(array $obj, string $field): mixed
     {
